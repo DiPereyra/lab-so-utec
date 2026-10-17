@@ -62,5 +62,5 @@ locals {
 #   subname = var.grupo
 #   type    = "CNAME"
 #   records = ["${lower(module.servicios.dns_alb)}."] # punto final: nombre absoluto
-#   ttl     = 3600                                    # el mínimo que acepta deSEC
+#   ttl     = 900                                     # 15 min: el mínimo de la zona en deSEC
 # }
