@@ -1,0 +1,81 @@
+:root {
+  --fondo: #f6f4ef;
+  --texto: #1f2328;
+  --suave: #5b6168;
+  --acento: #1a5ea0;
+  --tarjeta: #ffffff;
+  --borde: #dcd8cf;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #15181c;
+    --texto: #e8e6e1;
+    --suave: #a3a8ae;
+    --acento: #6aa9e8;
+    --tarjeta: #1e2228;
+    --borde: #30353c;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+main {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 4rem;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0.25rem 0 1rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+
+.etiqueta {
+  margin: 0;
+  color: var(--acento);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tarjeta {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--acento);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.grupo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+code {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--borde);
+  padding: 0.05em 0.35em;
+  border-radius: 4px;
+}
+
+a { color: var(--acento); }
+
+.prueba { color: var(--suave); }

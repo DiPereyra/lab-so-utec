@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratorio AWS — Sitio estático</title>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <main>
+    <p class="etiqueta">Laboratorio AWS · Parte 3</p>
+    <h1>Un mismo sitio, tres formas de publicarlo</h1>
+
+    <p>
+      Estos archivos (<code>index.html</code>, <code>estilo.css</code> y
+      <code>error.html</code>) son los mismos en los tres casos. Lo que cambia
+      es <strong>quién</strong> los entrega:
+    </p>
+
+    <section class="tarjeta">
+      <h2>Esta copia la sirve</h2>
+      <p class="grupo" id="servidor">Amazon S3</p>
+      <p id="detalle">
+        Un bucket con <em>alojamiento de sitios web estáticos</em>: no hay
+        ninguna máquina virtual atrás, los archivos son objetos.
+      </p>
+      <p id="host" hidden>Host que respondió: <code></code></p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Grupo</h2>
+      <!-- TODO: reemplazar por el nombre del grupo y sus integrantes,
+           guardar y volver a ejecutar "tofu apply". Solo se vuelve a subir
+           este archivo porque cambió su hash (etag). -->
+      <p class="grupo">Nombre del grupo</p>
+      <ul>
+        <li>Integrante 1</li>
+        <li>Integrante 2</li>
+        <li>Integrante 3</li>
+      </ul>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Los tres caminos</h2>
+      <ul>
+        <li><code>/s3</code>: el ALB redirige al endpoint web del bucket.</li>
+        <li><code>/ecs/</code>: el ALB reenvía a una tarea de ECS Fargate (contenedor nginx).</li>
+        <li><code>/vm/</code>: el ALB reenvía al servidor privado (EC2 con nginx).</li>
+      </ul>
+      <p>
+        El contenedor y el servidor privado descargan estos archivos del bucket
+        al arrancar.
+      </p>
+    </section>
+
+    <p class="prueba">
+      Probá una ruta que no existe, por ejemplo
+      <a href="no-existe.html">no-existe.html</a>, en cada una de las tres
+      copias. ¿Por qué el error es distinto?
+    </p>
+  </main>
+
+  <script>
+    // La ruta dice qué servidor entregó la página: /ecs/... o /vm/... pasan
+    // por el ALB; cualquier otra cosa es el bucket.
+    const copias = {
+      ecs: ["ECS Fargate", "Un contenedor nginx en una subred privada, detrás del ALB."],
+      vm: ["EC2 (servidor privado)", "Amazon Linux con nginx en una subred privada, detrás del ALB."],
+    };
+    const copia = copias[location.pathname.split("/")[1]];
+    if (copia) {
+      document.getElementById("servidor").textContent = copia[0];
+      document.getElementById("detalle").textContent = copia[1];
+      // host.txt lo escribe el servidor al descargar el sitio; en S3 no existe.
+      fetch("host.txt", { cache: "no-store" }) // sin caché: cada recarga pregunta de nuevo
+        .then((r) => (r.ok ? r.text() : Promise.reject()))
+        .then((h) => {
+          const p = document.getElementById("host");
+          p.querySelector("code").textContent = h.trim();
+          p.hidden = false;
+        })
+        .catch(() => {});
+    }
+  </script>
+</body>
+</html>

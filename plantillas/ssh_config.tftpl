@@ -1,0 +1,21 @@
+# Archivo generado por OpenTofu. No editar a mano: se regenera en cada apply.
+# Uso:
+#   ssh -F claves/ssh_config lab-bastion
+#   ssh -F claves/ssh_config lab-privada     (salta automáticamente por el bastión)
+
+Host lab-bastion
+    HostName ${ip_bastion}
+    User ${usuario_bastion}
+    IdentityFile ${dir}/bastion.pem
+    IdentitiesOnly yes
+    StrictHostKeyChecking accept-new
+    UserKnownHostsFile ${dir}/known_hosts
+
+Host lab-privada
+    HostName ${ip_privada}
+    User ${usuario_privada}
+    IdentityFile ${dir}/privada.pem
+    IdentitiesOnly yes
+    ProxyJump lab-bastion
+    StrictHostKeyChecking accept-new
+    UserKnownHostsFile ${dir}/known_hosts

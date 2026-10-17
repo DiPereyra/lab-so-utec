@@ -1,0 +1,31 @@
+# Copiar este archivo como terraform.tfvars y completar.
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# Acá NO van las credenciales de AWS ni el token de DNS: van en variables de
+# entorno (ver proveedor.tf y la Parte 0 del enunciado).
+
+# Exactamente el nombre que indicó el docente: el token de DNS del grupo solo
+# puede crear el registro <grupo>.lab.jplorier.com
+grupo = "grupo1"
+
+# Tu IP pública: curl -s https://checkip.amazonaws.com
+# Si cada integrante se conecta desde un lugar distinto, hay que actualizarla
+# y volver a aplicar (o ver la sección "Problemas frecuentes" del enunciado).
+mi_ip_cidr = "203.0.113.25/32"
+
+# El sitio del grupo queda en http://<grupo>.lab.jplorier.com/
+# dominio_base = "lab.jplorier.com"   # valor por defecto, no hace falta cambiarlo
+
+# region     = "us-east-1"
+# perfil_aws = "lab-aws"   # si configuraron un perfil con nombre
+
+# AWS Academy Learner Lab: no se pueden crear roles IAM, se usan los existentes.
+# usar_roles_existentes = true
+
+# Pausar el servicio ECS sin destruirlo:
+# cantidad_tareas = 0
+
+# --- Instancias (se agregan en la Parte 4) ---------------------------------
+# tipo_bastion   = "..."
+# tipo_privada   = "..."
+# version_fedora = "..."

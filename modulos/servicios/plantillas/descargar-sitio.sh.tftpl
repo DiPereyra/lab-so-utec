@@ -1,0 +1,24 @@
+#!/bin/sh
+# Descarga el sitio estático desde el endpoint web del bucket (es público, no
+# hacen falta credenciales) y lo deja en ${destino}.
+# Lo usan el contenedor de ECS y el servidor privado: así los tres caminos
+# (S3, ECS y EC2) sirven exactamente los mismos archivos.
+set -eu
+
+bajar() {
+  # Amazon Linux trae curl; la imagen nginx alpine trae wget (busybox).
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsS -o "$2" "$1"
+  else
+    wget -q -O "$2" "$1"
+  fi
+}
+
+%{ for archivo in archivos ~}
+mkdir -p "$(dirname "${destino}/${archivo}")"
+bajar "${url}/${archivo}" "${destino}/${archivo}"
+%{ endfor ~}
+
+# Nombre del host que responde (en Fargate y en EC2 incluye la IP privada).
+# La página lo lee con fetch("host.txt"); en S3 no existe y no se muestra.
+cat /proc/sys/kernel/hostname > "${destino}/host.txt"

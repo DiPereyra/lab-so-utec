@@ -1,0 +1,20 @@
+#!/bin/bash
+# user_data del servidor privado. cloud-init lo ejecuta como root UNA sola vez,
+# en el primer arranque. Registro: /var/log/cloud-init-output.log
+set -euo pipefail
+
+dnf install -y nginx
+
+# Script que descarga el sitio del bucket a /usr/share/nginx/html/vm.
+# Para actualizar el sitio después de cambiarlo:  sudo actualizar-sitio
+cat > /usr/local/sbin/actualizar-sitio <<'FIN'
+${script_sitio}
+FIN
+chmod 0755 /usr/local/sbin/actualizar-sitio
+
+# cloud-init ejecuta lo que está en per-boot en CADA arranque: al encender la
+# instancia (scripts/encender.sh) el sitio se vuelve a descargar.
+ln -sf /usr/local/sbin/actualizar-sitio /var/lib/cloud/scripts/per-boot/actualizar-sitio
+
+/usr/local/sbin/actualizar-sitio
+systemctl enable --now nginx
