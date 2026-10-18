@@ -30,7 +30,7 @@ output "subredes_publicas" {
 # output "urls_sitio" {
 #   description = "El mismo sitio, publicado de tres formas."
 #   value = {
-#     s3  = "${module.servicios.url_sitio}/s3"
+#     s3  = module.servicios.url_s3_por_alb
 #     ecs = "${module.servicios.url_sitio}/ecs/"
 #     vm  = "${module.servicios.url_sitio}/vm/"
 #   }

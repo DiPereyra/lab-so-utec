@@ -9,7 +9,7 @@ output "url_sitio_s3" {
 
 output "bucket_sitio" {
   description = "Nombre del bucket del sitio."
-  value       = aws_s3_bucket.sitio.bucket
+  value       = local.bucket
 }
 
 output "url_alb" {
@@ -23,8 +23,13 @@ output "dns_alb" {
 }
 
 output "url_sitio" {
-  description = "URL base del grupo en el ALB; el sitio está en /s3, /ecs/ y /vm/."
-  value       = "http://${var.dominio}"
+  description = "URL base del grupo en el ALB para /ecs/ y /vm/ (https si hay certificado)."
+  value       = "${local.esquema}://${var.dominio}"
+}
+
+output "url_s3_por_alb" {
+  description = "Entrada a S3 a través del ALB: siempre HTTP (el sitio web de S3 no tiene HTTPS)."
+  value       = "http://${var.dominio}/s3"
 }
 
 output "target_group_vm_arn" {

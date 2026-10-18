@@ -5,7 +5,7 @@
 # =============================================================================
 
 variable "grupo" {
-  description = "Identificador del grupo que indicó el docente, en minúsculas (ej.: grupo3). Se usa en nombres, etiquetas y en el subdominio: el token de DNS del grupo solo sirve para este nombre."
+  description = "Identificador del grupo que indicó el docente, en minúsculas (ej.: g3). Se usa en nombres, etiquetas y en el subdominio: el token de DNS del grupo solo sirve para este nombre."
   type        = string
 
   validation {

@@ -3,7 +3,21 @@
 # en el primer arranque. Registro: /var/log/cloud-init-output.log
 set -euo pipefail
 
+# Con 512 MiB (t4g.nano), dnf se queda sin memoria al leer los repositorios y
+# el kernel lo mata (oom-killer). Un archivo de intercambio (swap) de 1 GiB en
+# el disco le da el margen que necesita.
+if ! swapon --show=NAME --noheadings | grep -qx /swapfile; then
+  dd if=/dev/zero of=/swapfile bs=1M count=1024 status=none
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  echo '/swapfile none swap defaults 0 0' >>/etc/fstab
+fi
+
 dnf install -y nginx
+
+# Que el navegador pregunte si un archivo cambió antes de reusarlo (igual que S3).
+echo 'add_header Cache-Control "no-cache";' >/etc/nginx/conf.d/sin-cache.conf
 
 # Script que descarga el sitio del bucket a /usr/share/nginx/html/vm.
 # Para actualizar el sitio después de cambiarlo:  sudo actualizar-sitio

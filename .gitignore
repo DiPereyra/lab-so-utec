@@ -13,6 +13,9 @@ terraform.tfvars
 # Claves SSH y configuración generada
 claves/
 
+# Certificado HTTPS del curso (incluye la clave privada)
+certs/
+
 # Material de OpenVPN: la clave de la CA y los .ovpn no se comparten por git
 openvpn/salida/
 *.ovpn

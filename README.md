@@ -6,13 +6,14 @@ El enunciado completo está en Moodle. Este archivo es un recordatorio rápido.
 
 | Ruta | Contenido | ¿Se modifica? |
 |---|---|---|
-| `versions.tf`, `proveedor.tf`, `variables.tf` | Base del proyecto | No |
+| `versions.tf`, `providers.tf`, `variables.tf` | Base del proyecto | No |
 | `red.tf` | VPC; mitad pública resuelta, mitad privada TODO 2.x | **Sí** |
 | `servicios.tf` | Llamada al módulo y subdominio en deSEC (TODO 3.1 y 3.2) | **Sí** |
 | `modulos/servicios/` | S3, ALB con reglas `/s3`, `/ecs/` y `/vm/`, ECS, IAM — terminado | No (leer) |
 | `claves.tf` | Una clave SSH por instancia | No |
+| `certificado.tf` | Importa en ACM el certificado HTTPS del curso (`certs/`) | No |
 | `instancias.tf` | Variables, AMI, security groups, instancias, publicación en el ALB (TODO 4.x) | **Sí** |
-| `salidas.tf` | Salidas; descomentar por partes | **Sí** |
+| `outputs.tf` | Salidas; descomentar por partes | **Sí** |
 | `plantillas/ssh_config.tftpl` | Plantilla del archivo de configuración SSH | No |
 | `plantillas/servidor-web.sh.tftpl` | `user_data` del servidor privado: nginx + sitio en `/vm/` | No (leer) |
 | `sitio/` | Sitio estático que se sube a S3 | Personalizar `index.html` |
@@ -22,6 +23,7 @@ El enunciado completo está en Moodle. Este archivo es un recordatorio rápido.
 ## Arranque
 
 ```bash
+git pull                                         # traer las actualizaciones del docente
 cp .env.example .env && chmod 600 .env         # completar credenciales (Parte 0)
 source .env                                      # en cada terminal nueva
 cp terraform.tfvars.example terraform.tfvars   # completar
@@ -39,4 +41,4 @@ tofu destroy
 
 ## Nunca entregar ni subir a git
 
-`terraform.tfstate*`, `.terraform/`, `terraform.tfvars`, `claves/`, `*.ovpn`, claves de AWS, token de deSEC, `.env`.
+`terraform.tfstate*`, `.terraform/`, `terraform.tfvars`, `claves/`, `*.ovpn`, claves de AWS, token de deSEC, `.env`, `certs/`.

@@ -30,20 +30,18 @@ provider "aws" {
 }
 
 # =============================================================================
-# Proveedor deSEC (DNS)
+# DNS en deSEC
 #
 # deSEC es un servicio de DNS gratuito. La zona del curso es lab.jplorier.com
-# y cada grupo crea ahí su subdominio:
-#   grupo1.lab.jplorier.com -> CNAME -> nombre DNS del ALB
+# y cada grupo crea ahí su subdominio (servicios.tf, TODO 3.2):
+#   g1.lab.jplorier.com -> CNAME -> nombre DNS del ALB
+#
+# El registro se crea con la API de deSEC (curl), no con un proveedor: el
+# proveedor disponible (valodim/desec) falla cuando el registro y el ALB se
+# crean en el mismo "tofu apply".
 #
 # El docente entrega a cada grupo SU token, que solo puede escribir el registro
-# CNAME <grupo>.lab.jplorier.com. Se pasa por variable de entorno, igual que
-# las credenciales de AWS (en .env):
+# CNAME <grupo>.lab.jplorier.com. Va en .env, igual que las credenciales de AWS:
 #   export DESEC_API_TOKEN="..."
 # Nunca se escribe en archivos .tf ni en terraform.tfvars.
-#
-# Ojo: OpenTofu configura este proveedor apenas exista un recurso desec_* en
-# el código, así que desde la Parte 3 sin el token falla "tofu plan".
 # =============================================================================
-
-provider "desec" {}

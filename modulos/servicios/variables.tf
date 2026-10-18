@@ -6,7 +6,7 @@
 # =============================================================================
 
 variable "nombre" {
-  description = "Prefijo para nombrar todos los recursos (ej.: lab-grupo3). Solo minúsculas, números y guiones."
+  description = "Prefijo para nombrar todos los recursos (ej.: lab-g3). Solo minúsculas, números y guiones."
   type        = string
 
   validation {
@@ -41,8 +41,20 @@ variable "subredes_privadas" {
 }
 
 variable "dominio" {
-  description = "Nombre DNS por el que se entra al ALB (ej.: grupo1.lab.jplorier.com). Las reglas del listener solo responden a este host."
+  description = "Nombre DNS por el que se entra al ALB (ej.: g1.lab.jplorier.com). Las reglas del listener solo responden a este host."
   type        = string
+}
+
+variable "usar_https" {
+  description = "true = escuchar también en el 443 con certificado_arn. Va aparte del ARN porque el ARN se conoce recién al aplicar y OpenTofu necesita saber al planificar si crea el listener 443."
+  type        = bool
+  default     = false
+}
+
+variable "certificado_arn" {
+  description = "ARN de un certificado de ACM para var.dominio (ej.: el comodín *.lab.jplorier.com del curso). Solo se usa si usar_https = true."
+  type        = string
+  default     = null
 }
 
 # --- Sitio estático en S3 ----------------------------------------------------

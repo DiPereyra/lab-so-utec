@@ -3,28 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Laboratorio AWS — Sitio estático</title>
+  <title>Laboratorio AWS — UTEC</title>
+  <link rel="icon" href="img/utec.png">
   <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
+  <header class="banda">
+    <div class="banda-contenido">
+      <img class="logo" src="img/utec.png" alt="Logo de UTEC" width="56" height="58">
+      <div class="institucion">
+        <span class="sigla">UTEC</span>
+        <span class="nombre">Universidad Tecnológica del Uruguay</span>
+      </div>
+      <img class="bandera" src="img/florida.svg" alt="Bandera del departamento de Florida" width="72" height="48">
+    </div>
+  </header>
+
   <main>
-    <p class="etiqueta">Laboratorio AWS · Parte 3</p>
-    <h1>Un mismo sitio, tres formas de publicarlo</h1>
+    <section class="portada">
+      <p class="etiqueta">Sistemas Operativos · Laboratorio AWS</p>
+      <h1>Un mismo sitio, tres formas de publicarlo</h1>
+      <p class="bajada">
+        Estos archivos son idénticos en los tres casos. Lo que cambia es
+        <strong>quién</strong> los entrega.
+      </p>
+    </section>
 
-    <p>
-      Estos archivos (<code>index.html</code>, <code>estilo.css</code> y
-      <code>error.html</code>) son los mismos en los tres casos. Lo que cambia
-      es <strong>quién</strong> los entrega:
-    </p>
-
-    <section class="tarjeta">
-      <h2>Esta copia la sirve</h2>
-      <p class="grupo" id="servidor">Amazon S3</p>
+    <section class="tarjeta destacada" aria-live="polite">
+      <p class="rotulo">Esta copia la sirve</p>
+      <p class="servidor" id="servidor">Amazon S3</p>
       <p id="detalle">
         Un bucket con <em>alojamiento de sitios web estáticos</em>: no hay
         ninguna máquina virtual atrás, los archivos son objetos.
       </p>
-      <p id="host" hidden>Host que respondió: <code></code></p>
+      <p class="host" id="host" hidden>Host que respondió <code></code></p>
     </section>
 
     <section class="tarjeta">
@@ -33,25 +45,35 @@
            guardar y volver a ejecutar "tofu apply". Solo se vuelve a subir
            este archivo porque cambió su hash (etag). -->
       <p class="grupo">Nombre del grupo</p>
-      <ul>
+      <ul class="integrantes">
         <li>Integrante 1</li>
         <li>Integrante 2</li>
         <li>Integrante 3</li>
       </ul>
     </section>
 
-    <section class="tarjeta">
-      <h2>Los tres caminos</h2>
-      <ul>
-        <li><code>/s3</code>: el ALB redirige al endpoint web del bucket.</li>
-        <li><code>/ecs/</code>: el ALB reenvía a una tarea de ECS Fargate (contenedor nginx).</li>
-        <li><code>/vm/</code>: el ALB reenvía al servidor privado (EC2 con nginx).</li>
-      </ul>
-      <p>
-        El contenedor y el servidor privado descargan estos archivos del bucket
-        al arrancar.
-      </p>
-    </section>
+    <h2 class="titulo-seccion">Los tres caminos</h2>
+    <div class="caminos">
+      <article class="camino" id="camino-s3">
+        <span class="ruta">/s3</span>
+        <h3>Amazon S3</h3>
+        <p>El ALB redirige al endpoint web del bucket. Solo HTTP.</p>
+      </article>
+      <article class="camino" id="camino-ecs">
+        <span class="ruta">/ecs/</span>
+        <h3>ECS Fargate</h3>
+        <p>El ALB reenvía a un contenedor nginx en una subred privada.</p>
+      </article>
+      <article class="camino" id="camino-vm">
+        <span class="ruta">/vm/</span>
+        <h3>EC2</h3>
+        <p>El ALB reenvía al servidor privado con Amazon Linux y nginx.</p>
+      </article>
+    </div>
+    <p class="nota">
+      El contenedor y el servidor privado descargan estos archivos del bucket
+      al arrancar.
+    </p>
 
     <p class="prueba">
       Probá una ruta que no existe, por ejemplo
@@ -60,6 +82,15 @@
     </p>
   </main>
 
+  <footer class="pie">
+    <p>
+      Logo: <a href="https://commons.wikimedia.org/wiki/File:LogoUTEC.png">LogoUTEC.png</a>,
+      de SantiiCastel. Bandera: <a href="https://commons.wikimedia.org/wiki/File:Flag_of_Florida_Department.svg">Flag of Florida Department.svg</a>,
+      de GaelVector. Ambas en Wikimedia Commons, licencia
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.es">CC BY-SA 4.0</a>.
+    </p>
+  </footer>
+
   <script>
     // La ruta dice qué servidor entregó la página: /ecs/... o /vm/... pasan
     // por el ALB; cualquier otra cosa es el bucket.
@@ -67,7 +98,9 @@
       ecs: ["ECS Fargate", "Un contenedor nginx en una subred privada, detrás del ALB."],
       vm: ["EC2 (servidor privado)", "Amazon Linux con nginx en una subred privada, detrás del ALB."],
     };
-    const copia = copias[location.pathname.split("/")[1]];
+    const clave = location.pathname.split("/")[1];
+    const copia = copias[clave];
+    document.getElementById("camino-" + (copia ? clave : "s3")).classList.add("actual");
     if (copia) {
       document.getElementById("servidor").textContent = copia[0];
       document.getElementById("detalle").textContent = copia[1];

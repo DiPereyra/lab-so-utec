@@ -2,11 +2,11 @@
 #   cp terraform.tfvars.example terraform.tfvars
 #
 # Acá NO van las credenciales de AWS ni el token de DNS: van en variables de
-# entorno (ver proveedor.tf y la Parte 0 del enunciado).
+# entorno (ver providers.tf y la Parte 0 del enunciado).
 
 # Exactamente el nombre que indicó el docente: el token de DNS del grupo solo
 # puede crear el registro <grupo>.lab.jplorier.com
-grupo = "grupo1"
+grupo = "g1"
 
 # Tu IP pública: curl -s https://checkip.amazonaws.com
 # Si cada integrante se conecta desde un lugar distinto, hay que actualizarla

@@ -32,6 +32,8 @@ locals {
   # El contenedor, al arrancar, descarga el sitio del bucket a la carpeta /ecs/
   # de nginx (la ruta que le corresponde en el ALB) y después inicia nginx.
   script_contenedor = join("\n", [
+    # Mismo criterio de caché que los objetos de S3 (ver s3.tf).
+    "echo 'add_header Cache-Control \"no-cache\";' > /etc/nginx/conf.d/sin-cache.conf",
     templatefile("${path.module}/plantillas/descargar-sitio.sh.tftpl", {
       url      = "http://${aws_s3_bucket_website_configuration.sitio.website_endpoint}"
       archivos = local.archivos_sitio

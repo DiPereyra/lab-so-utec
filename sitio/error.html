@@ -4,17 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>404 — No encontrado</title>
+  <link rel="icon" href="img/utec.png">
   <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
+  <header class="banda">
+    <div class="banda-contenido">
+      <img class="logo" src="img/utec.png" alt="Logo de UTEC" width="56" height="58">
+      <div class="institucion">
+        <span class="sigla">UTEC</span>
+        <span class="nombre">Universidad Tecnológica del Uruguay</span>
+      </div>
+      <img class="bandera" src="img/florida.svg" alt="Bandera del departamento de Florida" width="72" height="48">
+    </div>
+  </header>
+
   <main>
     <p class="etiqueta">Error 404</p>
     <h1>Ese objeto no está en el bucket</h1>
-    <p>
-      S3 no encontró ninguna clave con ese nombre y devolvió el
-      <strong>documento de error</strong> configurado en el bucket
-      (<code>error.html</code>).
-    </p>
+    <section class="tarjeta destacada">
+      <p>
+        S3 no encontró ninguna clave con ese nombre y devolvió el
+        <strong>documento de error</strong> configurado en el bucket
+        (<code>error.html</code>).
+      </p>
+    </section>
     <p><a href="index.html">Volver al inicio</a></p>
   </main>
 </body>

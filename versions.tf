@@ -18,11 +18,6 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.6"
     }
-    # DNS gratuito de deSEC (desec.io): crea el subdominio de cada grupo.
-    desec = {
-      source  = "valodim/desec"
-      version = "~> 0.6"
-    }
   }
 
   # El estado (terraform.tfstate) queda en esta carpeta, en la máquina de quien
