@@ -33,12 +33,12 @@ variable "cidr_vpc" {
 }
 
 variable "mi_ip_cidr" {
-  description = "IP pública desde donde se conecta el grupo por SSH al bastión, en formato CIDR (ej.: 190.64.10.20/32)."
+  description = "IP pública desde donde se conecta el grupo por SSH al bastión, en formato CIDR (ej.: 203.0.113.25/32)."
   type        = string
 
   validation {
     condition     = can(cidrhost(var.mi_ip_cidr, 0))
-    error_message = "Debe ser un CIDR válido, por ejemplo 190.64.10.20/32."
+    error_message = "Debe ser un CIDR válido, por ejemplo 203.0.113.25/32."
   }
 }
 

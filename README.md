@@ -23,7 +23,7 @@ El enunciado completo está en Moodle. Este archivo es un recordatorio rápido.
 ## Arranque
 
 ```bash
-git pull                                         # traer las actualizaciones del docente
+git pull upstream main                           # traer las actualizaciones del docente
 cp .env.example .env && chmod 600 .env         # completar credenciales (Parte 0)
 source .env                                      # en cada terminal nueva
 cp terraform.tfvars.example terraform.tfvars   # completar
@@ -31,6 +31,20 @@ aws sts get-caller-identity                      # ¿credenciales OK?
 tofu init
 tofu plan
 ```
+
+## Trabajo en grupo y entrega
+
+El grupo trabaja en un **fork** de `jplorier/lab-so-utec` (uno lo crea y suma a los demás como colaboradores).
+
+```bash
+git clone https://github.com/USUARIO/lab-so-utec.git && cd lab-so-utec
+git remote add upstream https://github.com/jplorier/lab-so-utec.git
+git pull upstream main     # traer correcciones del docente
+git push                   # subir sus commits al fork
+```
+
+Entrega: **pull request** desde el fork hacia `jplorier/lab-so-utec` (`main`), título `Entrega gN - Apellidos`.
+Ningún commit puede contener secretos (`.env`, `terraform.tfvars`, `certs/`, `claves/`, estado).
 
 ## Al terminar CADA jornada
 
