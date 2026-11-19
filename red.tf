@@ -153,3 +153,40 @@ resource "aws_route_table_association" "publica" {
 # --- TODO 2.5: asociaciones ---------------------------------------------------------
 # Escriban ustedes el recurso aws_route_table_association "privada" para las
 # dos subredes privadas, copiando el modelo de las públicas.
+resource "aws_subnet" "privada" {
+  count             = 2
+  vpc_id            = aws_vpc.principal.id
+  availability_zone = local.azs[count.index]
+  cidr_block        = cidrsubnet(var.cidr_vpc, 8, 10 + count.index)
+  tags              = { Name = "lab-${var.grupo}-privada-${substr(local.azs[count.index], -1, 1)}" }
+}
+
+resource "aws_eip" "nat" {
+  domain = "vpc"
+  tags   = { Name = "lab-${var.grupo}-eip-nat" }
+}
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.publica[0].id
+  tags          = { Name = "lab-${var.grupo}-nat" }
+
+  depends_on = [aws_internet_gateway.igw]
+}
+
+resource "aws_route_table" "privada" {
+  vpc_id = aws_vpc.principal.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+
+  tags = { Name = "lab-${var.grupo}-rt-privada" }
+}
+
+resource "aws_route_table_association" "privada" {
+  count          = 2
+  subnet_id      = aws_subnet.privada[count.index].id
+  route_table_id = aws_route_table.privada.id
+}
