@@ -30,23 +30,23 @@
 #   - AWS Academy solo permite tamaños nano, micro, small, medium y large.
 # Precios: https://aws.amazon.com/ec2/pricing/on-demand/
 #
-# variable "tipo_bastion" {
-#   description = "Tipo de instancia del bastión (Fedora + OpenVPN)."
-#   type        = string
-#   default     = "???"
-# }
-#
-# variable "tipo_privada" {
-#   description = "Tipo de instancia del servidor privado (Amazon Linux 2023)."
-#   type        = string
-#   default     = "???"
-# }
-#
-# variable "version_fedora" {
-#   description = "Versión de Fedora Cloud a buscar."
-#   type        = string
-#   default     = "???"   # la última versión estable publicada
-# }
+variable "tipo_bastion" {
+  description = "Tipo de instancia del bastión (Fedora + OpenVPN)."
+  type        = string
+  default     = "t4g.micro"
+}
+
+variable "tipo_privada" {
+  description = "Tipo de instancia del servidor privado (Amazon Linux 2023)."
+  type        = string
+  default     = "t4g.nano"
+}
+
+variable "version_fedora" {
+  description = "Versión de Fedora Cloud a buscar."
+  type        = string
+  default     = "45" # la última versión estable publicada
+}
 
 
 # --- TODO 4.2: imágenes (AMI) ------------------------------------------------------
@@ -56,19 +56,19 @@
 #
 # EJEMPLO RESUELTO — Amazon Linux 2023 para ARM:
 #
-# data "aws_ami" "amazon_linux" {
-#   most_recent = true
-#   owners      = ["amazon"]
-#
-#   filter {
-#     name   = "name"
-#     values = ["al2023-ami-2023.*-kernel-*-arm64"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["arm64"]
-#   }
-# }
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-2023.*-kernel-*-arm64"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["arm64"]
+  }
+}
 #
 # A COMPLETAR — Fedora Cloud. Datos:
 #   - El Proyecto Fedora publica sus AMI desde la cuenta 125523088429.
@@ -79,19 +79,19 @@
 #         --output table
 #   - Cuidado con elegir una imagen "Beta" o de una versión sin publicar.
 #
-# data "aws_ami" "fedora" {
-#   most_recent = true
-#   owners      = ["???"]
-#
-#   filter {
-#     name   = "name"
-#     values = ["Fedora-Cloud-Base*-${var.version_fedora}-*"]
-#   }
-#   filter {
-#     name   = "architecture"
-#     values = ["???"]
-#   }
-# }
+data "aws_ami" "fedora" {
+  most_recent = true
+  owners      = ["125523088429"]
+
+  filter {
+    name   = "name"
+    values = ["Fedora-Cloud-Base*-${var.version_fedora}-*"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["arm64"]
+  }
+}
 
 
 # --- TODO 4.3: security groups ---------------------------------------------------
@@ -103,37 +103,37 @@
 #   entrada: SSH (TCP 22) solo desde la IP del grupo; OpenVPN (UDP 1194)
 #   salida : libre
 #
-# resource "aws_security_group" "bastion" {
-#   name        = "lab-${var.grupo}-bastion"
-#   description = "Bastion: SSH desde la IP del grupo y OpenVPN"   # solo ASCII
-#   vpc_id      = aws_vpc.principal.id
-#   tags        = { Name = "lab-${var.grupo}-bastion" }
-# }
-#
-# resource "aws_vpc_security_group_ingress_rule" "bastion_ssh" {
-#   security_group_id = aws_security_group.bastion.id
-#   description       = "SSH desde la IP del grupo"
-#   ip_protocol       = "tcp"
-#   from_port         = 22
-#   to_port           = 22
-#   cidr_ipv4         = var.mi_ip_cidr
-# }
-#
-# resource "aws_vpc_security_group_ingress_rule" "bastion_vpn" {
-#   security_group_id = aws_security_group.bastion.id
-#   description       = "OpenVPN"
-#   ip_protocol       = "udp"
-#   from_port         = 1194
-#   to_port           = 1194
-#   cidr_ipv4         = "0.0.0.0/0"
-# }
-#
-# resource "aws_vpc_security_group_egress_rule" "bastion_salida" {
-#   security_group_id = aws_security_group.bastion.id
-#   description       = "Salida libre"
-#   ip_protocol       = "-1"            # -1 = todos los protocolos
-#   cidr_ipv4         = "0.0.0.0/0"
-# }
+resource "aws_security_group" "bastion" {
+  name        = "lab-${var.grupo}-bastion"
+  description = "Bastion: SSH desde la IP del grupo y OpenVPN" # solo ASCII
+  vpc_id      = aws_vpc.principal.id
+  tags        = { Name = "lab-${var.grupo}-bastion" }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "bastion_ssh" {
+  security_group_id = aws_security_group.bastion.id
+  description       = "SSH desde la IP del grupo"
+  ip_protocol       = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_ipv4         = var.mi_ip_cidr
+}
+
+resource "aws_vpc_security_group_ingress_rule" "bastion_vpn" {
+  security_group_id = aws_security_group.bastion.id
+  description       = "OpenVPN"
+  ip_protocol       = "udp"
+  from_port         = 1194
+  to_port           = 1194
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "bastion_salida" {
+  security_group_id = aws_security_group.bastion.id
+  description       = "Salida libre"
+  ip_protocol       = "-1" # -1 = todos los protocolos
+  cidr_ipv4         = "0.0.0.0/0"
+}
 #
 # A COMPLETAR — servidor privado:
 #   entrada: SSH solo desde el BASTIÓN. No usen una IP: usen el security group
@@ -162,28 +162,28 @@
 # --- TODO 4.4: instancias ------------------------------------------------------------
 # EJEMPLO RESUELTO — bastión:
 #
-# resource "aws_instance" "bastion" {
-#   ami                    = data.aws_ami.fedora.id
-#   instance_type          = var.tipo_bastion
-#   subnet_id              = aws_subnet.publica[0].id
-#   vpc_security_group_ids = [aws_security_group.bastion.id]
-#   key_name               = aws_key_pair.bastion.key_name      # clave PROPIA del bastión
-#   iam_instance_profile   = module.servicios.perfil_instancia
-#
-#   # Si se ejecuta "sudo shutdown" dentro de la instancia, se APAGA (stop)
-#   # en lugar de destruirse. Lo usamos para el apagado automático.
-#   instance_initiated_shutdown_behavior = "stop"
-#
-#   metadata_options {
-#     http_tokens = "required"     # obliga a usar IMDSv2 (más seguro)
-#   }
-#
-#   root_block_device {
-#     volume_type = "gp3"          # más barato que gp2 a igual tamaño
-#   }
-#
-#   tags = { Name = "lab-${var.grupo}-bastion", Rol = "bastion" }
-# }
+resource "aws_instance" "bastion" {
+  ami                    = data.aws_ami.fedora.id
+  instance_type          = var.tipo_bastion
+  subnet_id              = aws_subnet.publica[0].id
+  vpc_security_group_ids = [aws_security_group.bastion.id]
+  key_name               = aws_key_pair.bastion.key_name # clave PROPIA del bastión
+  iam_instance_profile   = module.servicios.perfil_instancia
+
+  # Si se ejecuta "sudo shutdown" dentro de la instancia, se APAGA (stop)
+  # en lugar de destruirse. Lo usamos para el apagado automático.
+  instance_initiated_shutdown_behavior = "stop"
+
+  metadata_options {
+    http_tokens = "required" # obliga a usar IMDSv2 (más seguro)
+  }
+
+  root_block_device {
+    volume_type = "gp3" # más barato que gp2 a igual tamaño
+  }
+
+  tags = { Name = "lab-${var.grupo}-bastion", Rol = "bastion" }
+}
 #
 # A COMPLETAR — servidor privado. Diferencias con el bastión:
 #   - AMI de Amazon Linux, tipo var.tipo_privada
@@ -203,17 +203,17 @@
 # Genera claves/ssh_config a partir de plantillas/ssh_config.tftpl, con las IP
 # reales. Descomenten cuando las dos instancias existan.
 #
-# resource "local_file" "ssh_config" {
-#   filename        = "${path.root}/claves/ssh_config"
-#   file_permission = "0600"
-#   content = templatefile("${path.root}/plantillas/ssh_config.tftpl", {
-#     dir             = abspath("${path.root}/claves")
-#     ip_bastion      = aws_instance.bastion.public_ip
-#     usuario_bastion = "fedora"
-#     ip_privada      = aws_instance.privada.private_ip
-#     usuario_privada = "ec2-user"
-#   })
-# }
+resource "local_file" "ssh_config" {
+  filename        = "${path.root}/claves/ssh_config"
+  file_permission = "0600"
+  content = templatefile("${path.root}/plantillas/ssh_config.tftpl", {
+    dir             = abspath("${path.root}/claves")
+    ip_bastion      = aws_instance.bastion.public_ip
+    usuario_bastion = "fedora"
+    ip_privada      = aws_instance.privada.private_ip
+    usuario_privada = "ec2-user"
+  })
+}
 
 
 # --- TODO 4.6: publicar el servidor privado detrás del ALB -----------------------
@@ -250,3 +250,78 @@
 # resource "aws_lb_target_group_attachment" "privada" {
 #   ...
 # }
+
+resource "aws_security_group" "privada" {
+  name        = "lab-${var.grupo}-privada"
+  description = "Servidor privado: SSH desde el bastion"
+  vpc_id      = aws_vpc.principal.id
+  tags        = { Name = "lab-${var.grupo}-privada" }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "privada_ssh" {
+  security_group_id            = aws_security_group.privada.id
+  description                  = "SSH desde el bastion"
+  ip_protocol                  = "tcp"
+  from_port                    = 22
+  to_port                      = 22
+  referenced_security_group_id = aws_security_group.bastion.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "privada_icmp" {
+  security_group_id            = aws_security_group.privada.id
+  description                  = "Ping desde el bastion"
+  ip_protocol                  = "icmp"
+  from_port                    = -1
+  to_port                      = -1
+  referenced_security_group_id = aws_security_group.bastion.id
+}
+
+resource "aws_vpc_security_group_egress_rule" "privada_salida" {
+  security_group_id = aws_security_group.privada.id
+  description       = "Salida libre"
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_instance" "privada" {
+  ami                    = data.aws_ami.amazon_linux.id
+  instance_type          = var.tipo_privada
+  subnet_id              = aws_subnet.privada[0].id
+  vpc_security_group_ids = [aws_security_group.privada.id]
+  key_name               = aws_key_pair.privada.key_name
+  iam_instance_profile   = module.servicios.perfil_instancia
+
+  instance_initiated_shutdown_behavior = "stop"
+
+  metadata_options {
+    http_tokens = "required"
+  }
+
+  root_block_device {
+    volume_type = "gp3"
+  }
+
+  user_data = templatefile("${path.root}/plantillas/servidor-web.sh.tftpl", {
+    script_sitio = module.servicios.script_sitio_vm
+  })
+
+  # Sin la ruta por el NAT, dnf no puede descargar paquetes en el arranque.
+  depends_on = [aws_route_table_association.privada]
+
+  tags = { Name = "lab-${var.grupo}-privada", Rol = "privada" }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "privada_http" {
+  security_group_id            = aws_security_group.privada.id
+  description                  = "HTTP desde el ALB"
+  ip_protocol                  = "tcp"
+  from_port                    = 80
+  to_port                      = 80
+  referenced_security_group_id = module.servicios.sg_alb_id
+}
+
+resource "aws_lb_target_group_attachment" "privada" {
+  target_group_arn = module.servicios.target_group_vm_arn
+  target_id        = aws_instance.privada.id
+  port             = 80
+}
