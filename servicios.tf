@@ -26,25 +26,25 @@ locals {
   dominio = "${var.grupo}.${var.dominio_base}"
 }
 
-# module "servicios" {
-#   source = "./modulos/servicios"
-#
-#   nombre            = "lab-${var.grupo}"
-#   vpc_id            = aws_vpc.principal.id
-#   subredes_publicas = aws_subnet.publica[*].id   # [*] = lista con los id de todas las copias
-#   subredes_privadas = aws_subnet.privada[*].id
-#   dominio           = local.dominio            # las reglas del ALB responden a este host
-#   usar_https        = local.hay_certificado    # HTTPS (certificado.tf); false si no hay certs/
-#   certificado_arn   = local.certificado_arn
-#
-#   directorio_sitio = "${path.root}/sitio"
-#
-#   cantidad_tareas       = var.cantidad_tareas
-#   usar_roles_existentes = var.usar_roles_existentes
-#
-#   # Las tareas necesitan la ruta por el NAT para descargar la imagen.
-#   depends_on = [aws_route_table_association.privada]
-# }
+module "servicios" {
+  source = "./modulos/servicios"
+
+  nombre            = "lab-${var.grupo}"
+  vpc_id            = aws_vpc.principal.id
+  subredes_publicas = aws_subnet.publica[*].id # [*] = lista con los id de todas las copias
+  subredes_privadas = aws_subnet.privada[*].id
+  dominio           = local.dominio         # las reglas del ALB responden a este host
+  usar_https        = local.hay_certificado # HTTPS (certificado.tf); false si no hay certs/
+  certificado_arn   = local.certificado_arn
+
+  directorio_sitio = "${path.root}/sitio"
+
+  cantidad_tareas       = var.cantidad_tareas
+  usar_roles_existentes = var.usar_roles_existentes
+
+  # Las tareas necesitan la ruta por el NAT para descargar la imagen.
+  depends_on = [aws_route_table_association.privada]
+}
 
 # --- TODO 3.2: subdominio del grupo en deSEC (EJEMPLO RESUELTO) ----------------
 # El ALB tiene un nombre DNS largo que cambia cada vez que se recrea
@@ -59,32 +59,32 @@ locals {
 # Ese token solo puede escribir el CNAME <grupo>.lab.jplorier.com: si
 # var.grupo no coincide con el nombre que les dio el docente, deSEC lo rechaza.
 #
-# resource "terraform_data" "dns" {
-#   input = {
-#     dominio = var.dominio_base
-#     subname = var.grupo
-#     destino = "${lower(module.servicios.dns_alb)}." # punto final: nombre absoluto
-#     ttl     = 900                                   # 15 min: el mínimo de la zona en deSEC
-#   }
-#
-#   # PUT sobre la lista de registros crea el registro o lo reemplaza.
-#   provisioner "local-exec" {
-#     command = <<-EOT
-#       curl -fsS --retry 5 -X PUT "https://desec.io/api/v1/domains/${self.input.dominio}/rrsets/" \
-#         -H "Authorization: Token $${DESEC_API_TOKEN:?Falta DESEC_API_TOKEN: ejecuten source .env}" \
-#         -H "Content-Type: application/json" \
-#         --data '${jsonencode([{ subname = self.input.subname, type = "CNAME", ttl = self.input.ttl, records = [self.input.destino] }])}'
-#     EOT
-#   }
-#
-#   # Con "records" vacío, deSEC borra el registro (PATCH: no exige el ttl).
-#   provisioner "local-exec" {
-#     when    = destroy
-#     command = <<-EOT
-#       curl -fsS --retry 5 -X PATCH "https://desec.io/api/v1/domains/${self.input.dominio}/rrsets/" \
-#         -H "Authorization: Token $${DESEC_API_TOKEN:?Falta DESEC_API_TOKEN: ejecuten source .env}" \
-#         -H "Content-Type: application/json" \
-#         --data '${jsonencode([{ subname = self.input.subname, type = "CNAME", records = [] }])}'
-#     EOT
-#   }
-# }
+resource "terraform_data" "dns" {
+  input = {
+    dominio = var.dominio_base
+    subname = var.grupo
+    destino = "${lower(module.servicios.dns_alb)}." # punto final: nombre absoluto
+    ttl     = 900                                   # 15 min: el mínimo de la zona en deSEC
+  }
+
+  # PUT sobre la lista de registros crea el registro o lo reemplaza.
+  provisioner "local-exec" {
+    command = <<-EOT
+      curl -fsS --retry 5 -X PUT "https://desec.io/api/v1/domains/${self.input.dominio}/rrsets/" \
+        -H "Authorization: Token $${DESEC_API_TOKEN:?Falta DESEC_API_TOKEN: ejecuten source .env}" \
+        -H "Content-Type: application/json" \
+        --data '${jsonencode([{ subname = self.input.subname, type = "CNAME", ttl = self.input.ttl, records = [self.input.destino] }])}'
+    EOT
+  }
+
+  # Con "records" vacío, deSEC borra el registro (PATCH: no exige el ttl).
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      curl -fsS --retry 5 -X PATCH "https://desec.io/api/v1/domains/${self.input.dominio}/rrsets/" \
+        -H "Authorization: Token $${DESEC_API_TOKEN:?Falta DESEC_API_TOKEN: ejecuten source .env}" \
+        -H "Content-Type: application/json" \
+        --data '${jsonencode([{ subname = self.input.subname, type = "CNAME", records = [] }])}'
+    EOT
+  }
+}
